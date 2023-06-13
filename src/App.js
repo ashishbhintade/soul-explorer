@@ -1,5 +1,4 @@
 import "./App.css";
-import env from "react-dotenv";
 import {
   ApolloClient,
   InMemoryCache,
@@ -28,7 +27,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      "X-API-KEY": env.API_KEY,
+      "X-API-KEY": "BQYREgYRrtF30XWbLmzyYS7lWoDuvkVJ",
     },
   };
 });
