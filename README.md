@@ -1,70 +1,127 @@
-# Getting Started with Create React App
+# Soul Explorer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Live App [Here](https://soul-explorer.netlify.app/).
 
-## Available Scripts
+## What is Soul Explorer
 
-In the project directory, you can run:
+Soul Explorer provides a user friendly interface to explore the soul names i.e., soul name, owner address, and metadata. It also shows the transaction that took place to buy that user name along with some meta data.
 
-### `npm start`
+## How it is useful for developers
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This explorer can be useful for developers in various ways:-
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Data Analysis: This explorer canprovide developers with a comprehensive view of data within the Soulnames. Developers can explore various metrics like distribution of soul names, frequency of specific names and patterns in name generation.
+- Debugging and Testing: Developers often encounter issues when working with large datasets or complex systems. By using this explorer, developers can search, filter, and sort through the Soulnames data, making it easier to identify potential errors. They can track down specific names or investigate patterns that might be causing issues, enabling them to debug and test more effectively.
+- User Experience Improvement: This explorer can assist developers in understanding how users interact with Soulnames product. By analyzing behavior like most frequently search names, developers can gain insights into user preferences.
+- Documentation and Collaboration: Developers often rely on documentation to understand complexity of a project. This explorer can serve as a visual aid for documenting the Soulnames.
 
-### `npm test`
+## How to get API key
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Visit the Bitquery website at https://ide.bitquery.io/.
+- Get your API keys
 
-### `npm run build`
+## Installing and Running
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Clone this repo
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone https://github.com/ashishbhintade/soul-explorer.git
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Add you own API key from Bitquery
 
-### `npm run eject`
+```js
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      ...headers,
+      "X-API-KEY": "Your_API_KEY",
+    },
+  };
+});
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Run the following command in terminal
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm i && npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Working with Apollo Client
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- First install dependencies by running the following command in terminal:
 
-## Learn More
+```bash
+npm install @apollo/client graphql
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Import necessary dependencies in your JavaScript file:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```js
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import { gql } from "graphql";
+```
 
-### Code Splitting
+- Set up client. Create instance of `ApolloClient` by providing options such as `link` and `cache`. We will use `createHttpLink` to create an HTTP link that connects to your GraphQL server:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```js
+const httpLink = createHttpLink({
+  uri: "https://example.com/graphql", //Your API endpoint
+});
 
-### Analyzing the Bundle Size
+const client = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache(),
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Define a query:
 
-### Making a Progressive Web App
+```js
+const LOAD_USERS = gql`
+  {
+    ethereum(network: celo_alfajores) {
+      smartContractCalls(
+        options: { desc: "block.timestamp.time", limit: 50, offset: 0 }
+        smartContractAddress: {
+          is: "0xf163686d50C800C49ED58836d3a4D1fBA057CeE6"
+        }
+        smartContractMethod: { is: "mint" }
+      ) {
+        block {
+          timestamp {
+            time(format: "%Y-%m-%d %H:%M:%S")
+          }
+          height
+        }
+        transaction {
+          hash
+        }
+        arguments {
+          argument
+          value
+        }
+        smartContractMethod {
+          name
+        }
+      }
+    }
+  }
+`;
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Execute the query. The `useQuery` hook takes the `LOAD_USERS` query as an argument and returns an object with properties like error and data.
 
-### Advanced Configuration
+```js
+function MyComponent() {
+  const { error, data } = useQuery(LOAD_USERS);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+  if (error) {
+    // Handle the error case
+    console.log(error.message);
+  }
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+  // Access the fetched data
+  console.log(data);
+}
+```
