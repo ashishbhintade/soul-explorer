@@ -27,7 +27,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      "X-API-KEY": "BQYREgYRrtF30XWbLmzyYS7lWoDuvkVJ",
+      "X-API-KEY": "BQYRg4VjJ2KkIumoYE0DErds1wZCbQfZ",
     },
   };
 });
